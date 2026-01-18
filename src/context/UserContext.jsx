@@ -172,8 +172,8 @@ export const UserProvider = ({ children }) => {
 
     const loginTestUser = async (role) => {
         setIsLoading(true);
-        let email = `test_${role}@example.com`;
-        if (role === 'group_order') email = 'test_manager@example.com';
+        let email = `niroz.test.${role}@gmail.com`;
+        if (role === 'group_order') email = 'niroz.test.manager@gmail.com';
 
         const password = 'password123';
 

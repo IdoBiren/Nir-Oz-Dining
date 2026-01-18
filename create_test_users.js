@@ -8,9 +8,9 @@ const supabaseKey = 'sb_publishable_pwBVXgI4YMCsmbpvOmIlOw_tpPtoCmD';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const testUsers = [
-    { email: 'test_user@example.com', password: 'password123', role: 'user', name: 'Test User' },
-    { email: 'test_manager@example.com', password: 'password123', role: 'group_order', name: 'Test Manager' },
-    { email: 'test_admin@example.com', password: 'password123', role: 'admin', name: 'Test Admin' }
+    { email: 'niroz.test.user@gmail.com', password: 'password123', role: 'user', name: 'Test User' },
+    { email: 'niroz.test.manager@gmail.com', password: 'password123', role: 'group_order', name: 'Test Manager' },
+    { email: 'niroz.test.admin@gmail.com', password: 'password123', role: 'admin', name: 'Test Admin' }
 ];
 
 async function createUsers() {

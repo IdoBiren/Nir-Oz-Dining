@@ -4,9 +4,9 @@ ALTER TABLE user_roles ADD COLUMN IF NOT EXISTS name text;
 -- 2. Insert or Update roles for test users
 INSERT INTO user_roles (user_email, role, name)
 VALUES 
-  ('test_admin@example.com', 'admin', 'Test Admin'),
-  ('test_manager@example.com', 'group_order', 'Test Manager'),
-  ('test_user@example.com', 'user', 'Test User')
+  ('niroz.test.admin@gmail.com', 'admin', 'Test Admin'),
+  ('niroz.test.manager@gmail.com', 'group_order', 'Test Manager'),
+  ('niroz.test.user@gmail.com', 'user', 'Test User')
 ON CONFLICT (user_email) 
 DO UPDATE SET 
   role = EXCLUDED.role,
