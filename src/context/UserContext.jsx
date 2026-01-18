@@ -23,11 +23,15 @@ export const UserProvider = ({ children }) => {
 
         // Failsafe: If Supabase takes too long, stop loading
         const timeoutId = setTimeout(() => {
-            if (mounted) {
+            if (mounted && isLoading) {
                 console.warn('Supabase session load timed out. Forcing app load.');
+                // Don't just silence it, let the user know if they are stuck
+                if (!session) {
+                    alert('הטעינה מתעכבת. ייתכן שיש בעיית תקשורת.');
+                }
                 setIsLoading(false);
             }
-        }, 3000);
+        }, 12000);
 
         // Helper to fetch role AND sync name
         const syncUser = async (email, fullName) => {
@@ -113,7 +117,23 @@ export const UserProvider = ({ children }) => {
             setSession(session);
             if (session?.user) {
                 const googleName = session.user.user_metadata.full_name || session.user.email.split('@')[0];
-                const { role, name, isNew } = await syncUser(session.user.email, googleName);
+
+                // Timeout promise for syncUser
+                const syncPromise = syncUser(session.user.email, googleName);
+                const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ timeout: true }), 10000));
+
+                const result = await Promise.race([syncPromise, timeoutPromise]);
+
+                if (result.timeout) {
+                    console.error('Session sync timed out');
+                    alert('ההתחברות לוקחת יותר מדי זמן. אנא נסה שנית או בדוק את החיבור לרשת.');
+                    await supabase.auth.signOut();
+                    setIsLoading(false);
+                    return;
+                }
+
+                const { role, name, isNew } = result;
+
                 if (mounted) {
                     setUser({
                         name: name || googleName,
