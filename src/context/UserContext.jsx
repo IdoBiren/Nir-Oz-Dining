@@ -79,37 +79,6 @@ export const UserProvider = ({ children }) => {
             }
         };
 
-        const initSession = async () => {
-            try {
-                const { data: { session } } = await supabase.auth.getSession();
-                if (mounted) {
-                    setSession(session);
-                    if (session?.user) {
-                        const googleName = session.user.user_metadata.full_name || session.user.email.split('@')[0];
-                        const { role, name, isNew } = await syncUser(session.user.email, googleName);
-                        if (mounted) {
-                            setUser({
-                                name: name || googleName,
-                                email: session.user.email,
-                                avatar: session.user.user_metadata.avatar_url,
-                                role: role
-                            });
-                            if (isNew) setIsCompletingProfile(true);
-                        }
-                    }
-                }
-            } catch (err) {
-                console.error('Session init error:', err);
-            } finally {
-                if (mounted) {
-                    setIsLoading(false);
-                    clearTimeout(timeoutId);
-                }
-            }
-        };
-
-        initSession();
-
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange(async (_event, session) => {
