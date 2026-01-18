@@ -508,15 +508,7 @@ const CalendarBoard = () => {
                 <div className="legend-item"><span className="dot veg"></span> צמחוני</div>
                 <div className="legend-item"><span className="dot meat"></span> בשרי</div>
 
-                <label className="weekly-toggle" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', marginRight: '20px' }}>
-                    <input
-                        type="checkbox"
-                        checked={isWeeklyMode}
-                        onChange={(e) => setIsWeeklyMode(e.target.checked)}
-                        style={{ marginLeft: '5px' }}
-                    />
-                    <span>בחירה לכל השבוע</span>
-                </label>
+
             </div>
 
             <div className="calendar-grid">
@@ -528,13 +520,12 @@ const CalendarBoard = () => {
                 <div className="day-name">ו'</div>
                 <div className="day-name">ש'</div>
                 <div className="day-name" style={{ fontSize: '0.8rem' }}>שבועי</div>
-                <div className="day-name" style={{ fontSize: '0.8rem' }}>שבועי</div>
                 {generateCalendarDays()}
             </div>
 
             <p className="calendar-hint">
                 {isGroupUser ? 'לחץ על יום לעריכת כמויות.' : 'לחץ לבחירה: בשרי 🍖 \u2190 צמחוני 🥦 \u2190 ללא'}
-                {isWeeklyMode && <br />}<span style={{ color: 'var(--color-primary)' }}>{isWeeklyMode ? 'מצב עריכה שבועית פעיל: הבחירה תחול על כל השבוע (א-ה).' : ''}</span>
+
             </p>
 
             {editingDate && (
