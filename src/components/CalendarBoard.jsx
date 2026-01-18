@@ -280,6 +280,49 @@ const CalendarBoard = () => {
         }
     };
 
+    const handleWeekClick = (weekBatch) => {
+        if (!user) {
+            alert('Please sign in first.');
+            return;
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Filter for valid days (Future + Not Weekend)
+        const validDays = weekBatch.filter(cell => {
+            if (cell.type !== 'day') return false;
+            const dayOfWeek = cell.dateObj.getDay();
+            const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
+            const isLocked = cell.dateObj <= today;
+            return !isWeekend && !isLocked;
+        });
+
+        if (validDays.length === 0) return;
+
+        // Check if all valid days are already ordered
+        const allOrdered = validDays.every(d => {
+            const m = meals[d.dateStr];
+            return m && (m.veg > 0 || m.meat > 0);
+        });
+
+        // Toggle: If all ordered -> Clear. Else -> Set All to Meat (Default)
+        // For Group User: Maybe set all to 0? Or just blocked? 
+        // Current logic works for regular user. For Group user this is less useful without a modal, 
+        // but let's assume "Clear" or "Fill 1 Meat" is a good start.
+
+        const newMeat = allOrdered ? 0 : 1;
+        const newVeg = 0;
+
+        const updates = validDays.map(d => ({
+            dateStr: d.dateStr,
+            veg: newVeg,
+            meat: newMeat
+        }));
+
+        bulkSaveMealsToBackend(updates);
+    };
+
     // Calendar Helper Functions
     const getDaysInMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
     const daysInMonth = getDaysInMonth(currentDate);
@@ -291,62 +334,103 @@ const CalendarBoard = () => {
     ];
 
     const generateCalendarDays = () => {
-        const days = [];
+        const gridItems = [];
         const today = new Date();
-        // Reset time part for accurate comparison
         today.setHours(0, 0, 0, 0);
 
-        for (let i = 0; i < firstDayOfMonth; i++) days.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
+        // 1. Build Data Model
+        const rawCells = [];
 
+        // Padding Start
+        for (let i = 0; i < firstDayOfMonth; i++) {
+            rawCells.push({ type: 'empty', id: `start-${i}` });
+        }
+
+        // Days
         for (let i = 1; i <= daysInMonth; i++) {
-            const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
             const dateObj = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
+            const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+            rawCells.push({ type: 'day', dayNum: i, dateObj, dateStr, id: `day-${i}` });
+        }
 
-            // Comparison
-            const isToday = dateObj.getTime() === today.getTime();
-            // Updated Logic: Locked if Past OR Today
-            const isLocked = dateObj <= today;
-            const dayOfWeek = dateObj.getDay();
-            const isWeekend = dayOfWeek === 5 || dayOfWeek === 6; // Friday (5) or Saturday (6)
+        // Padding End (Ensure divisible by 7)
+        const remainder = rawCells.length % 7;
+        const paddingNeeded = remainder === 0 ? 0 : 7 - remainder;
+        for (let i = 0; i < paddingNeeded; i++) {
+            rawCells.push({ type: 'empty', id: `end-${i}` });
+        }
 
-            const meal = meals[dateStr];
-            const isLoading = loadingDates[dateStr];
+        // 2. Render Batches
+        for (let i = 0; i < rawCells.length; i += 7) {
+            const weekBatch = rawCells.slice(i, i + 7);
 
-            // Determine display
-            let displayContent = null;
-            let hasOrder = false;
-
-            if (meal && (meal.veg > 0 || meal.meat > 0)) {
-                hasOrder = true;
-                if (isGroupUser) {
-                    displayContent = (
-                        <div className="group-counts">
-                            {meal.veg > 0 && <span className="veg-count">🥦 {meal.veg}</span>}
-                            {meal.meat > 0 && <span className="meat-count">🍖 {meal.meat}</span>}
-                        </div>
-                    );
+            // Render Days
+            weekBatch.forEach(cell => {
+                if (cell.type === 'empty') {
+                    gridItems.push(<div key={cell.id} className="calendar-day empty"></div>);
                 } else {
-                    displayContent = (
-                        <div className={`meal-indicator`}>
-                            {meal.meat > 0 ? '🍖' : '🥦'}
+                    const { dateObj, dateStr, dayNum } = cell;
+                    const isToday = dateObj.getTime() === today.getTime();
+                    const isLocked = dateObj <= today;
+                    const dayOfWeek = dateObj.getDay();
+                    const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
+
+                    const meal = meals[dateStr];
+                    const isLoading = loadingDates[dateStr];
+
+                    let displayContent = null;
+                    let hasOrder = false;
+
+                    if (meal && (meal.veg > 0 || meal.meat > 0)) {
+                        hasOrder = true;
+                        if (isGroupUser) {
+                            displayContent = (
+                                <div className="group-counts">
+                                    {meal.veg > 0 && <span className="veg-count">🥦 {meal.veg}</span>}
+                                    {meal.meat > 0 && <span className="meat-count">🍖 {meal.meat}</span>}
+                                </div>
+                            );
+                        } else {
+                            displayContent = (
+                                <div className={`meal-indicator`}>
+                                    {meal.meat > 0 ? '🍖' : '🥦'}
+                                </div>
+                            );
+                        }
+                    }
+
+                    gridItems.push(
+                        <div
+                            key={cell.id}
+                            className={`calendar-day ${hasOrder ? 'confirmed' : ''} ${isLoading ? 'loading' : ''} ${isToday ? 'today' : ''} ${isLocked ? 'past' : ''} ${isWeekend ? 'weekend' : ''}`}
+                            onClick={() => !isLocked && !isWeekend && handleDayClick(dateStr)}
+                        >
+                            <span className="day-number">{dayNum}</span>
+                            {isLoading ? <div className="spinner"></div> : displayContent}
+                            {isWeekend && <span className="weekend-label" style={{ fontSize: '0.7em', color: '#999', marginTop: '5px' }}>סגור</span>}
                         </div>
                     );
                 }
-            }
+            });
 
-            days.push(
-                <div
-                    key={i}
-                    className={`calendar-day ${hasOrder ? 'confirmed' : ''} ${isLoading ? 'loading' : ''} ${isToday ? 'today' : ''} ${isLocked ? 'past' : ''} ${isWeekend ? 'weekend' : ''}`}
-                    onClick={() => !isLocked && !isWeekend && handleDayClick(dateStr)}
-                >
-                    <span className="day-number">{i}</span>
-                    {isLoading ? <div className="spinner"></div> : displayContent}
-                    {isWeekend && <span className="weekend-label" style={{ fontSize: '0.7em', color: '#999', marginTop: '5px' }}>סגור</span>}
+            // Render Week Button
+            // Check if week has any valid future days
+            const hasFutureDays = weekBatch.some(c => c.type === 'day' && c.dateObj > today && c.dateObj.getDay() !== 5 && c.dateObj.getDay() !== 6);
+
+            gridItems.push(
+                <div key={`week-btn-${i}`} style={{ display: 'flex', justifyContent: 'center' }}>
+                    <button
+                        className="week-btn"
+                        onClick={() => handleWeekClick(weekBatch)}
+                        disabled={!hasFutureDays}
+                        title={hasFutureDays ? "הזמן לכל השבוע" : "אין ימים זמינים"}
+                    >
+                        +
+                    </button>
                 </div>
             );
         }
-        return days;
+        return gridItems;
     };
 
     return (
@@ -380,6 +464,7 @@ const CalendarBoard = () => {
                 <div className="day-name">ה'</div>
                 <div className="day-name">ו'</div>
                 <div className="day-name">ש'</div>
+                <div className="day-name"></div>
                 {generateCalendarDays()}
             </div>
 
