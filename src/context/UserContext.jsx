@@ -114,43 +114,50 @@ export const UserProvider = ({ children }) => {
             data: { subscription },
         } = supabase.auth.onAuthStateChange(async (_event, session) => {
             if (!mounted) return;
-            setSession(session);
-            if (session?.user) {
-                const googleName = session.user.user_metadata.full_name || session.user.email.split('@')[0];
+            console.log('UserContext: Auth State Changed:', _event);
 
-                // Timeout promise for syncUser
-                const syncPromise = syncUser(session.user.email, googleName);
-                const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ timeout: true }), 10000));
+            try {
+                setSession(session);
+                if (session?.user) {
+                    const googleName = session.user.user_metadata.full_name || session.user.email.split('@')[0];
 
-                const result = await Promise.race([syncPromise, timeoutPromise]);
+                    // Timeout promise for syncUser
+                    const syncPromise = syncUser(session.user.email, googleName);
+                    const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ timeout: true }), 10000));
 
-                if (result.timeout) {
-                    console.error('Session sync timed out');
-                    alert('ההתחברות לוקחת יותר מדי זמן. אנא נסה שנית או בדוק את החיבור לרשת.');
-                    await supabase.auth.signOut();
-                    setIsLoading(false);
-                    return;
+                    const result = await Promise.race([syncPromise, timeoutPromise]);
+
+                    if (result.timeout) {
+                        console.error('Session sync timed out');
+                        alert('ההתחברות לוקחת יותר מדי זמן. אנא נסה שנית או בדוק את החיבור לרשת.');
+                        await supabase.auth.signOut();
+                        // Loading will be cleared in finally
+                        return;
+                    }
+
+                    const { role, name, isNew } = result;
+
+                    if (mounted) {
+                        setUser({
+                            name: name || googleName,
+                            email: session.user.email,
+                            avatar: session.user.user_metadata.avatar_url,
+                            role: role
+                        });
+                        if (isNew) setIsCompletingProfile(true);
+                    }
+                } else {
+                    setUser(null);
                 }
-
-                const { role, name, isNew } = result;
-
-                if (mounted) {
-                    setUser({
-                        name: name || googleName,
-                        email: session.user.email,
-                        avatar: session.user.user_metadata.avatar_url,
-                        role: role
-                    });
-                    if (isNew) setIsCompletingProfile(true);
-                }
-            } else {
+            } catch (err) {
+                console.error('Critical error during auth state sync:', err);
+                // Force logout on critical error to reset state
                 setUser(null);
+                setSession(null);
+            } finally {
+                // Ensure loading is ALWAYS turned off
+                if (mounted) setIsLoading(false);
             }
-            // The initial isLoading is handled by initSession.
-            // For subsequent auth state changes, we don't want to set isLoading to false
-            // as it would hide the app if it was already loaded.
-            // If a logout happens, the app should just reflect the user change.
-            setIsLoading(false);
         });
 
         return () => {
@@ -191,6 +198,7 @@ export const UserProvider = ({ children }) => {
     };
 
     const loginTestUser = async (role) => {
+        console.log(`UserContext: Attempting test login for ${role}`);
         setIsLoading(true);
         let email = `niroz.test.${role}@gmail.com`;
         if (role === 'group_order') email = 'niroz.test.manager@gmail.com';
