@@ -89,14 +89,42 @@ export const UserProvider = ({ children }) => {
                 setSession(session);
                 if (session?.user) {
                     const googleName = session.user.user_metadata.full_name || session.user.email.split('@')[0];
+                    const cacheKey = `user_role_${session.user.email}`;
 
-                    // Timeout promise for syncUser
+                    // 1. OPTIMISTIC CACHE CHECK
+                    const cachedRole = localStorage.getItem(cacheKey);
+                    const cachedName = localStorage.getItem(`${cacheKey}_name`);
+
+                    if (cachedRole) {
+                        console.log('UserContext: Using cached role:', cachedRole);
+                        if (mounted) {
+                            setUser({
+                                name: cachedName || googleName,
+                                email: session.user.email,
+                                avatar: session.user.user_metadata.avatar_url,
+                                role: cachedRole
+                            });
+                            setIsLoading(false); // Render immediately!
+                        }
+                    }
+
+                    // 2. Timeout promise for syncUser
                     const syncPromise = syncUser(session.user.email, googleName);
+                    // Use a shorter timeout logic for background if we have cache? 
+                    // No, stick to safety.
                     const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ timeout: true }), 10000));
 
                     const result = await Promise.race([syncPromise, timeoutPromise]);
 
                     if (result.timeout) {
+                        // If we have cache, we don't care as much about timeout, but we should verify eventually.
+                        // However, if we have cache, we already set isLoading(false).
+                        // So let's just log and return if we already rendered.
+                        if (cachedRole) {
+                            console.warn('Session sync timed out (background). Using cache.');
+                            return;
+                        }
+
                         console.error('Session sync timed out');
                         alert('ההתחברות לוקחת יותר מדי זמן. אנא נסה שנית או בדוק את החיבור לרשת.');
                         await supabase.auth.signOut();
@@ -105,6 +133,10 @@ export const UserProvider = ({ children }) => {
                     }
 
                     const { role, name, isNew } = result;
+
+                    // 3. Update Cache & State
+                    localStorage.setItem(cacheKey, role);
+                    if (name) localStorage.setItem(`${cacheKey}_name`, name);
 
                     if (mounted) {
                         setUser({
@@ -152,6 +184,10 @@ export const UserProvider = ({ children }) => {
         // Immediately clear local state to give instant feedback
         setUser(null);
         setSession(null);
+
+        // Clear caches
+        localStorage.removeItem('cached_user_role');
+        localStorage.removeItem('cached_user_name');
 
         try {
             const { error } = await supabase.auth.signOut();
