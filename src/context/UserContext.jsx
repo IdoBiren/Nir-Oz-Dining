@@ -21,6 +21,21 @@ export const UserProvider = ({ children }) => {
     useEffect(() => {
         let mounted = true;
 
+        // 0. Synchronous Check: if no token, stop loading immediately
+        const tokenKey = 'sb-qylehpuzpcftfzslktrz-auth-token'; // Check chrome dev tools for your specific key if this fails
+        // Actually, Supabase uses a key based on project ID.
+        // Inspecting local storage is best, but we can also check if *any* supabase key exists or just default to wait 300ms?
+        // Better: We check if `localStorage` has any key starting with `sb-` and ending with `-auth-token`?
+        // Simpler: Just rely on onAuthStateChange but we can "guess" empty.
+
+        // For now, let's try to be smart. If local storage is empty of auth tokens, we are likely not logged in.
+        const hasSupabaseToken = Object.keys(localStorage).some(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
+        if (!hasSupabaseToken) {
+            console.log('No Supabase token found. Skipping wait.');
+            setIsLoading(false);
+            // We don't return here because we still want the listener to attach just in case
+        }
+
         // Failsafe: If Supabase takes too long, stop loading
         const timeoutId = setTimeout(() => {
             if (mounted && isLoading) {
@@ -209,6 +224,18 @@ export const UserProvider = ({ children }) => {
         if (role === 'group_order') email = 'niroz.test.manager@gmail.com';
 
         const password = 'password123';
+
+        // PRE-CACHE OPTIMIZATION
+        // We know the roles for these specific emails, so we can pre-seed the cache
+        // to avoid the DB round-trip on the next syncUser call.
+        const cacheKey = `user_role_${email}`;
+        localStorage.setItem(cacheKey, role);
+
+        // Also pre-cache name
+        let name = 'Test User';
+        if (role === 'admin') name = 'Test Admin';
+        if (role === 'group_order') name = 'Test Manager';
+        localStorage.setItem(`${cacheKey}_name`, name);
 
         try {
             const { error } = await supabase.auth.signInWithPassword({
