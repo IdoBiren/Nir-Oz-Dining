@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import './LoginModal.css'; // Reuse styles for consistency
 
-const GroupOrderModal = ({ date, initialVeg, initialMeat, onSave, onClose }) => {
+const GroupOrderModal = ({ date, initialVeg, initialMeat, onSave, onClose, isWeekly }) => {
     const vegRef = useRef();
     const meatRef = useRef();
 
@@ -15,8 +15,8 @@ const GroupOrderModal = ({ date, initialVeg, initialMeat, onSave, onClose }) => 
     return (
         <div className="backdrop" onClick={onClose}>
             <div className="modal login-modal glass-panel" onClick={(e) => e.stopPropagation()} dir="rtl">
-                <h2>הזמנה קבוצתית</h2>
-                <p className="login-subtitle">הגדרת כמויות לתאריך {date}</p>
+                <h2>{isWeekly ? 'הזמנה שבועית' : 'הזמנה קבוצתית'}</h2>
+                <p className="login-subtitle">{isWeekly ? `הגדרה גורפת לשבוע של ${date}` : `הגדרת כמויות לתאריך ${date}`}</p>
 
                 <form onSubmit={submitHandler}>
                     <div className="control">

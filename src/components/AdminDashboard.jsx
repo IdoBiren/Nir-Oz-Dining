@@ -211,8 +211,8 @@ const AdminDashboard = () => {
                     if (hasOrder) {
                         displayContent = (
                             <div className="group-counts">
-                                {stats.veg > 0 && <span className="veg-count">🥦 {stats.veg}</span>}
-                                {stats.meat > 0 && <span className="meat-count">🍖 {stats.meat}</span>}
+                                {stats.veg > 0 && <span className="veg-count">{stats.veg}</span>}
+                                {stats.meat > 0 && <span className="meat-count">{stats.meat}</span>}
                             </div>
                         );
                     }
@@ -232,19 +232,7 @@ const AdminDashboard = () => {
                 }
             });
 
-            // 3. Render Week Summary Column
-            const hasTotals = weekTotals.veg > 0 || weekTotals.meat > 0;
-            gridItems.push(
-                <div key={`week-summary-${i}`} className="calendar-day week-summary" style={{ background: 'rgba(255, 255, 255, 0.02)', borderStyle: 'dashed', cursor: 'default' }}>
-                    {hasTotals && (
-                        <div className="group-counts">
-                            <span style={{ fontSize: '0.7rem', marginBottom: '2px' }}>סה"כ שבועי</span>
-                            {weekTotals.veg > 0 && <span className="veg-count">🥦 {weekTotals.veg}</span>}
-                            {weekTotals.meat > 0 && <span className="meat-count">🍖 {weekTotals.meat}</span>}
-                        </div>
-                    )}
-                </div>
-            );
+            // 3. Render Week Summary Column (Removed for Admin)
         }
         return gridItems;
     };
@@ -291,7 +279,6 @@ const AdminDashboard = () => {
                         <div className="day-name">ה'</div>
                         <div className="day-name">ו'</div>
                         <div className="day-name">ש'</div>
-                        <div className="day-name" style={{ fontSize: '0.8rem' }}>שבועי</div>
                         {generateCalendarDays()}
                     </div>
 

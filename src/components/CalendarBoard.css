@@ -70,7 +70,7 @@
 
 .calendar-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr) 50px;
+    grid-template-columns: repeat(7, 1fr) 60px;
     gap: 10px;
     align-items: center;
 }
@@ -79,6 +79,11 @@
     font-weight: bold;
     color: var(--color-text-muted);
     padding: 0.5rem;
+}
+
+.calendar-grid .day-name:last-child {
+    text-align: left;
+    padding-left: 10px;
 }
 
 .calendar-day {
@@ -234,11 +239,15 @@
 .veg-count {
     color: #4CAF50;
     font-weight: bold;
+    font-size: 1.2rem;
+    /* Bigger numbers */
 }
 
 .meat-count {
     color: #FF5722;
     font-weight: bold;
+    font-size: 1.2rem;
+    /* Bigger numbers */
 }
 
 
@@ -251,32 +260,72 @@
 /* Mobile Responsive */
 @media (max-width: 600px) {
     .calendar-board {
-        padding: 1rem;
-        margin: 1rem;
+        padding: 0.5rem;
+        margin: 0.5rem;
+    }
+
+    /* Allow horizontal scroll for the grid if it's too tight */
+    .calendar-grid {
+        display: flex;
+        /* Switch to flexbox for scrolling or keep grid with min-width */
+        display: grid;
+        overflow-x: auto;
+        padding-bottom: 10px;
+        /* Space for scrollbar */
+        gap: 5px;
+        /* Ensure cells have a minimum width so they don't shrink too much */
+        grid-template-columns: repeat(7, minmax(40px, 1fr)) 60px;
+    }
+
+    /* Custom Scrollbar for the grid */
+    .calendar-grid::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .calendar-grid::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 3px;
+    }
+
+    .calendar-grid::-webkit-scrollbar-thumb {
+        background: var(--color-primary);
+        border-radius: 3px;
     }
 
     .calendar-day {
         border-radius: 8px;
+        min-height: 50px;
+        /* Enforce height */
     }
 
     .day-number {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
     }
 
     .meal-indicator {
-        font-size: 1.2rem;
+        font-size: 1rem;
+        margin-top: 2px;
     }
 
-    .calendar-grid {
-        gap: 5px;
+    /* Hide the "Weekly" text on very small screens if needed, or rotate it? */
+    .calendar-grid .day-name:last-child {
+        font-size: 0.7rem !important;
+        white-space: nowrap;
+    }
+
+    .week-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
     }
 
     .calendar-day.today::after {
-        font-size: 0.5rem;
+        font-size: 0.4rem;
         padding: 1px 2px;
-        top: 2px;
+        top: 1px;
     }
 }
+
 .week-btn {
     width: 40px;
     height: 40px;
@@ -291,10 +340,12 @@
     justify-content: center;
     transition: all 0.2s;
 }
+
 .week-btn:hover {
     background: var(--color-primary);
     color: var(--color-bg);
 }
+
 .week-btn:disabled {
     border-color: #555;
     color: #555;

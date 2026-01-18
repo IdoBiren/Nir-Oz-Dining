@@ -174,7 +174,10 @@ export const UserProvider = ({ children }) => {
                 setSession(null);
             } finally {
                 // Ensure loading is ALWAYS turned off
-                if (mounted) setIsLoading(false);
+                if (mounted) {
+                    setIsLoading(false);
+                    clearTimeout(timeoutId); // CANCEL the global failsafe
+                }
             }
         });
 

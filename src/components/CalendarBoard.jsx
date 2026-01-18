@@ -262,8 +262,12 @@ const CalendarBoard = () => {
     };
 
     const handleGroupSave = (date, veg, meat) => {
-        if (isWeeklyMode) {
-            const dObj = new Date(date);
+        // Check if this is a "Week Batch" from the special ID
+        const isWeeklyBatch = date.startsWith('WEEK:');
+
+        if (isWeeklyBatch || isWeeklyMode) {
+            const realDateStr = isWeeklyBatch ? date.split(':')[1] : date;
+            const dObj = new Date(realDateStr);
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
@@ -300,19 +304,78 @@ const CalendarBoard = () => {
 
         if (validDays.length === 0) return;
 
-        // Check if all valid days are already ordered
-        const allOrdered = validDays.every(d => {
+        // Group User Logic: Open Modal for "Weekly Batch"
+        if (isGroupUser) {
+            // Find Sunday (first valid day usually) or just use the first valid day as "representative" date for the modal
+            // but we need to signal it's a batch.
+            // Let's use a special state or just pass a flag.
+            // Simplest: Use the first date string but perform a batch save later.
+            // However, GroupOrderModal expects a single date.
+            // We can set `editingDate` to a special string "WEEK-OF-..." or handle it via a new state `editingWeek`.
+            // Let's rely on `isWeeklyMode` state inside the modal handler?
+            // Actually, we are clicking the specific week button. `isWeeklyMode` might be off?
+            // User requested "weekly buttons... should open a table".
+            // So this specific button acts like a "Week Edit".
+
+            // We'll set the editing date to the Sunday of that week to identify which week.
+            const sunday = weekBatch.find(c => c.type === 'day' && c.dateObj.getDay() === 0);
+            const refDate = sunday ? sunday.dateStr : validDays[0].dateStr;
+
+            setEditingDate(refDate);
+            // We need to tell the modal (or the save handler) that this is a WEEKLY edit.
+            // Since we don't have a separate prop for the modal currently, we can use `setIsWeeklyMode(true)` temporarily?
+            // Or better, set a new state `editingWeekBatch` = validDays.
+            // Let's assume we force `isWeeklyMode` to true if they click this button?
+            // But `isWeeklyMode` is a global toggle.
+            // Let's set a transient state.
+            setEditingDate(`WEEK:${refDate}`); // Hacky but works to distinguish? 
+            // Better: update state `isBatchEditing` = true.
+            return;
+        }
+
+        // Standard User Logic (Toggle)
+        // Check current state of the week to determine next step
+        // Priority: If any day has NO order -> Fill with Meat
+        // If all days have Meat -> Switch to Veg
+        // If all days have Veg -> Clear all
+
+        // Count what we have
+        let meatCount = 0;
+        let vegCount = 0;
+        let emptyCount = 0;
+
+        validDays.forEach(d => {
             const m = meals[d.dateStr];
-            return m && (m.veg > 0 || m.meat > 0);
+            if (!m || (m.veg === 0 && m.meat === 0)) {
+                emptyCount++;
+            } else if (m.meat > 0) {
+                meatCount++;
+            } else if (m.veg > 0) {
+                vegCount++;
+            }
         });
 
-        // Toggle: If all ordered -> Clear. Else -> Set All to Meat (Default)
-        // For Group User: Maybe set all to 0? Or just blocked? 
-        // Current logic works for regular user. For Group user this is less useful without a modal, 
-        // but let's assume "Clear" or "Fill 1 Meat" is a good start.
+        let newMeat = 0;
+        let newVeg = 0;
 
-        const newMeat = allOrdered ? 0 : 1;
-        const newVeg = 0;
+        if (emptyCount === validDays.length) {
+            // Case 1: All Empty -> Set Meat
+            newMeat = 1;
+        } else if (meatCount > 0 && vegCount === 0) {
+            // Case 2: Has Meat (and maybe some empty, but no Veg) -> Switch ALL to Veg
+            // Note: If mixed Meat/Empty, we usually align to Meat first, but user logic implies toggling.
+            // Let's simplify: If mostly Meat -> Veg. If mostly Veg -> Delete. If mostly Empty -> Meat.
+            // User Request: "one tap meat seconde tap veg"
+            // Standard cycle: Empty -> Meat -> Veg -> Empty.
+            newVeg = 1;
+        } else if (vegCount > 0) {
+            // Case 3: Has Veg -> Clear
+            newMeat = 0;
+            newVeg = 0;
+        } else {
+            // Fallback/Mixed: Reset to Meat
+            newMeat = 1;
+        }
 
         const updates = validDays.map(d => ({
             dateStr: d.dateStr,
@@ -476,10 +539,11 @@ const CalendarBoard = () => {
 
             {editingDate && (
                 <GroupOrderModal
-                    date={editingDate}
-                    initialVeg={meals[editingDate]?.veg || 0}
-                    initialMeat={meals[editingDate]?.meat || 0}
-                    onSave={handleGroupSave}
+                    date={editingDate.startsWith('WEEK:') ? editingDate.split(':')[1] : editingDate}
+                    isWeekly={editingDate.startsWith('WEEK:')}
+                    initialVeg={0} // Default to 0 for batch, or maybe average? 0 is safer.
+                    initialMeat={0}
+                    onSave={(d, v, m) => handleGroupSave(editingDate, v, m)} // Pass original ID back
                     onClose={() => setEditingDate(null)}
                 />
             )}

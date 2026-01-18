@@ -242,4 +242,15 @@
     color: var(--color-text-main);
 }
 
-/* Admin Calendar Specifics removed to allow 8 columns */
+
+/* Admin Calendar Specifics - Force 7 columns since we removed the weekly summary */
+/* Admin Calendar Specifics - Force 7 columns since we removed the weekly summary */
+.admin-calendar .calendar-grid {
+    grid-template-columns: repeat(7, 1fr);
+}
+
+@media (max-width: 600px) {
+    .admin-calendar .calendar-grid {
+        grid-template-columns: repeat(7, minmax(40px, 1fr));
+    }
+}
