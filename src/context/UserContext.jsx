@@ -114,6 +114,7 @@ export const UserProvider = ({ children }) => {
                         console.log('UserContext: Using cached role:', cachedRole);
                         if (mounted) {
                             setUser({
+                                id: session.user.id,
                                 name: cachedName || googleName,
                                 email: session.user.email,
                                 avatar: session.user.user_metadata.avatar_url,
@@ -155,6 +156,7 @@ export const UserProvider = ({ children }) => {
 
                     if (mounted) {
                         setUser({
+                            id: session.user.id,
                             name: name || googleName,
                             email: session.user.email,
                             avatar: session.user.user_metadata.avatar_url,

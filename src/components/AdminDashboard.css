@@ -240,5 +240,9 @@
     /* Fallback */
     background-color: var(--color-surface);
     color: var(--color-text-main);
-    padding: 10px;
+}
+
+/* Admin Calendar Specifics */
+.admin-calendar .calendar-grid {
+    grid-template-columns: repeat(7, 1fr);
 }
