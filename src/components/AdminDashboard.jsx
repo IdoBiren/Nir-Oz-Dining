@@ -158,49 +158,95 @@ const AdminDashboard = () => {
 
     // Render Calendar Days
     const generateCalendarDays = () => {
-        const days = [];
+        const gridItems = [];
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        // Empty days at start of month
+        // 1. Build Data Model
+        const rawCells = [];
+
+        // Padding Start
         for (let i = 0; i < firstDayOfMonth; i++) {
-            days.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
+            rawCells.push({ type: 'empty', id: `start-${i}` });
         }
 
+        // Days
         for (let i = 1; i <= daysInMonth; i++) {
             const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
             const dateObj = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), i);
-            const isToday = dateObj.getTime() === today.getTime();
-            const dayOfWeek = dateObj.getDay();
-            const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
+            rawCells.push({ type: 'day', dayNum: i, dateObj, dateStr, id: `day-${i}` });
+        }
 
-            const stats = ordersMap[dateStr];
-            const hasOrder = stats && stats.total > 0;
+        // Padding End (Ensure divisible by 7)
+        const remainder = rawCells.length % 7;
+        const paddingNeeded = remainder === 0 ? 0 : 7 - remainder;
+        for (let i = 0; i < paddingNeeded; i++) {
+            rawCells.push({ type: 'empty', id: `end-${i}` });
+        }
 
-            let displayContent = null;
-            if (hasOrder) {
-                displayContent = (
-                    <div className="group-counts">
-                        <span className="veg-count">🥦 {stats.veg}</span>
-                        <span className="meat-count">🍖 {stats.meat}</span>
-                    </div>
-                );
-            }
+        // 2. Render Batches
+        for (let i = 0; i < rawCells.length; i += 7) {
+            const weekBatch = rawCells.slice(i, i + 7);
+            const weekTotals = { veg: 0, meat: 0 };
 
-            days.push(
-                <div
-                    key={i}
-                    className={`calendar-day ${hasOrder ? 'confirmed' : ''} ${isToday ? 'today' : ''} ${isWeekend ? 'weekend' : ''}`}
-                    onClick={() => hasOrder && fetchOrderDetails(dateStr)}
-                    style={{ cursor: hasOrder ? 'pointer' : 'default' }}
-                >
-                    <span className="day-number">{i}</span>
-                    {displayContent}
-                    {isWeekend && <span className="weekend-label" style={{ fontSize: '0.7em', color: '#999', marginTop: '5px' }}>סגור</span>}
+            // Render Days
+            weekBatch.forEach(cell => {
+                if (cell.type === 'empty') {
+                    gridItems.push(<div key={cell.id} className="calendar-day empty"></div>);
+                } else {
+                    const { dateObj, dateStr, dayNum } = cell;
+                    const isToday = dateObj.getTime() === today.getTime();
+                    const dayOfWeek = dateObj.getDay();
+                    const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
+
+                    const stats = ordersMap[dateStr];
+                    const hasOrder = stats && stats.total > 0;
+
+                    if (hasOrder) {
+                        weekTotals.veg += stats.veg || 0;
+                        weekTotals.meat += stats.meat || 0;
+                    }
+
+                    let displayContent = null;
+                    if (hasOrder) {
+                        displayContent = (
+                            <div className="group-counts">
+                                {stats.veg > 0 && <span className="veg-count">🥦 {stats.veg}</span>}
+                                {stats.meat > 0 && <span className="meat-count">🍖 {stats.meat}</span>}
+                            </div>
+                        );
+                    }
+
+                    gridItems.push(
+                        <div
+                            key={cell.id}
+                            className={`calendar-day ${hasOrder ? 'confirmed' : ''} ${isToday ? 'today' : ''} ${isWeekend ? 'weekend' : ''}`}
+                            onClick={() => hasOrder && fetchOrderDetails(dateStr)}
+                            style={{ cursor: hasOrder ? 'pointer' : 'default' }}
+                        >
+                            <span className="day-number">{dayNum}</span>
+                            {displayContent}
+                            {isWeekend && <span className="weekend-label" style={{ fontSize: '0.7em', color: '#999', marginTop: '5px' }}>סגור</span>}
+                        </div>
+                    );
+                }
+            });
+
+            // 3. Render Week Summary Column
+            const hasTotals = weekTotals.veg > 0 || weekTotals.meat > 0;
+            gridItems.push(
+                <div key={`week-summary-${i}`} className="calendar-day week-summary" style={{ background: 'rgba(255, 255, 255, 0.02)', borderStyle: 'dashed', cursor: 'default' }}>
+                    {hasTotals && (
+                        <div className="group-counts">
+                            <span style={{ fontSize: '0.7rem', marginBottom: '2px' }}>סה"כ שבועי</span>
+                            {weekTotals.veg > 0 && <span className="veg-count">🥦 {weekTotals.veg}</span>}
+                            {weekTotals.meat > 0 && <span className="meat-count">🍖 {weekTotals.meat}</span>}
+                        </div>
+                    )}
                 </div>
             );
         }
-        return days;
+        return gridItems;
     };
 
     if (loading) return <div className="loading-screen">טוען נתונים...</div>;

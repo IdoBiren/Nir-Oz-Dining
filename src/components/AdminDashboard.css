@@ -242,7 +242,4 @@
     color: var(--color-text-main);
 }
 
-/* Admin Calendar Specifics */
-.admin-calendar .calendar-grid {
-    grid-template-columns: repeat(7, 1fr);
-}
+/* Admin Calendar Specifics removed to allow 8 columns */
