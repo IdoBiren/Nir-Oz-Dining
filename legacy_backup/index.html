@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gourmet Dining | In-Room Ordering</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Login Overlay -->
+    <div class="login-overlay" id="login-overlay">
+        <div class="login-card">
+            <div class="login-header">
+                <i class="fa-solid fa-utensils"></i>
+                <h1>LuxeBite</h1>
+                <p>Room Service Login</p>
+            </div>
+            <form id="login-form">
+                <div class="input-group">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="username" placeholder="Room Number or Guest Name" required>
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-key"></i>
+                    <input type="password" id="password" placeholder="Passcode (Any)" required>
+                </div>
+                <button type="submit" class="login-btn">
+                    Access Dining <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App Container (Initially Blurred) -->
+    <div class="app-container" id="app-container" style="filter: blur(5px); pointer-events: none;">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-utensils"></i>
+                <span>LuxeBite</span>
+            </div>
+            <nav class="category-nav">
+                <button class="nav-btn active" data-category="all">
+                    <i class="fa-solid fa-layer-group"></i> All
+                </button>
+                <button class="nav-btn" data-category="starter">
+                    <i class="fa-solid fa-leaf"></i> Starters
+                </button>
+                <button class="nav-btn" data-category="main">
+                    <i class="fa-solid fa-burger"></i> Mains
+                </button>
+                <button class="nav-btn" data-category="dessert">
+                    <i class="fa-solid fa-ice-cream"></i> Desserts
+                </button>
+                <button class="nav-btn" data-category="drink">
+                    <i class="fa-solid fa-wine-glass"></i> Drinks
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header>
+                <div class="welcome-text">
+                    <h1>Welcome, Guest</h1>
+                    <p>What are you craving today?</p>
+                </div>
+                <!-- Search Bar -->
+                <div class="search-bar">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Search for dishes...">
+                </div>
+            </header>
+
+            <!-- Menu Grid -->
+            <div class="menu-grid" id="menu-container">
+                <!-- Items will be injected here by JS -->
+            </div>
+        </main>
+
+        <!-- Cart Panel -->
+        <aside class="cart-panel">
+            <div class="cart-header">
+                <h2>Your Order</h2>
+                <span class="order-id">Room 101</span>
+            </div>
+
+            <div class="cart-items" id="cart-items-container">
+                <!-- Empty State -->
+                <div class="empty-cart">
+                    <i class="fa-solid fa-basket-shopping"></i>
+                    <p>Your cart is empty.</p>
+                </div>
+            </div>
+
+            <div class="cart-footer">
+                <div class="total-row">
+                    <span>Total</span>
+                    <span id="cart-total">$0.00</span>
+                </div>
+                <button class="checkout-btn" id="checkout-btn">
+                    Place Order <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+
+</html>

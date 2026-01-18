@@ -1,0 +1,244 @@
+/* Existing styles... */
+
+/* Existing Content */
+.admin-dashboard {
+    padding: 2rem;
+    max-width: 900px;
+    margin: 2rem auto;
+}
+
+.admin-dashboard h2 {
+    color: var(--color-primary);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.admin-dashboard {
+    padding: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 1rem;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--color-text-muted);
+    font-size: 1.1rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.tab-btn.active {
+    background: var(--color-surface);
+    color: var(--color-primary);
+    font-weight: bold;
+}
+
+/* Details Modal */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.details-modal {
+    background: var(--color-surface);
+    width: 90%;
+    max-width: 600px;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--color-border);
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.details-list {
+    overflow-y: auto;
+}
+
+.details-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.details-table th,
+.details-table td {
+    padding: 12px;
+    text-align: right;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.details-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.details-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--color-text-main);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.admin-dashboard h3 {
+    margin-bottom: 1rem;
+    color: var(--color-text-main);
+}
+
+/* Tabs */
+.admin-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.admin-tabs button {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.admin-tabs button:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.admin-tabs button.active {
+    background: var(--color-primary);
+    color: var(--color-bg);
+    border-color: var(--color-primary);
+    font-weight: bold;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: var(--color-text-main);
+}
+
+.report-table th,
+.report-table td {
+    padding: 12px 15px;
+    text-align: right;
+    /* RTL alignment */
+    border-bottom: 1px solid var(--color-border);
+}
+
+.report-table th {
+    background-color: rgba(0, 0, 0, 0.2);
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+.report-table tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.veg-col {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.meat-col {
+    color: #FF5722;
+    font-weight: bold;
+}
+
+.total-col {
+    font-weight: bold;
+}
+
+.loading-screen {
+    text-align: center;
+    padding: 3rem;
+    font-size: 1.2rem;
+    color: var(--color-text-muted);
+}
+
+.role-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: rgba(0, 0, 0, 0.3);
+    color: var(--color-text-main);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: left 8px center;
+    /* RTL: Arrow on left */
+    background-size: 16px;
+    padding-left: 30px;
+    /* Space for arrow */
+    transition: all 0.2s;
+}
+
+.role-select:hover {
+    border-color: var(--color-primary);
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.role-select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.2);
+}
+
+.role-select option {
+    background-color: #333;
+    /* Fallback */
+    background-color: var(--color-surface);
+    color: var(--color-text-main);
+    padding: 10px;
+}
