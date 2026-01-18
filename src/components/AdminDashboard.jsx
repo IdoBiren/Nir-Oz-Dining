@@ -291,6 +291,7 @@ const AdminDashboard = () => {
                         <div className="day-name">ה'</div>
                         <div className="day-name">ו'</div>
                         <div className="day-name">ש'</div>
+                        <div className="day-name" style={{ fontSize: '0.8rem' }}>שבועי</div>
                         {generateCalendarDays()}
                     </div>
 
