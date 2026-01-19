@@ -186,7 +186,8 @@ const AdminDashboard = () => {
 
         // 2. Render Batches
         for (let i = 0; i < rawCells.length; i += 7) {
-            const weekBatch = rawCells.slice(i, i + 7);
+            // Slice 5 days (Sun-Thu)
+            const weekBatch = rawCells.slice(i, i + 5);
             const weekTotals = { veg: 0, meat: 0 };
 
             // Render Days
@@ -277,8 +278,7 @@ const AdminDashboard = () => {
                         <div className="day-name">ג'</div>
                         <div className="day-name">ד'</div>
                         <div className="day-name">ה'</div>
-                        <div className="day-name">ו'</div>
-                        <div className="day-name">ש'</div>
+
                         {generateCalendarDays()}
                     </div>
 

@@ -70,7 +70,7 @@
 
 .calendar-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr) 60px;
+    grid-template-columns: repeat(5, 1fr) 60px;
     gap: 10px;
     align-items: center;
 }
@@ -236,18 +236,39 @@
     margin-top: 2px;
 }
 
+.veg-count,
+.meat-count {
+    /* Base size for desktop */
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
 .veg-count {
     color: #4CAF50;
-    font-weight: bold;
-    font-size: 1.2rem;
-    /* Bigger numbers */
 }
 
 .meat-count {
     color: #FF5722;
-    font-weight: bold;
-    font-size: 1.2rem;
-    /* Bigger numbers */
+}
+
+@media (max-width: 600px) {
+
+    .veg-count,
+    .meat-count {
+        /* Smaller size for mobile to fit in cells */
+        font-size: 0.9rem;
+        white-space: nowrap;
+        /* Prevent wrapping */
+    }
+
+    .group-counts {
+        /* Ensure counts stack or flow correctly without overflowing */
+        transform: scale(0.9);
+        /* Slight scale down if needed */
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+    }
 }
 
 
@@ -274,7 +295,7 @@
         /* Space for scrollbar */
         gap: 5px;
         /* Ensure cells have a minimum width so they don't shrink too much */
-        grid-template-columns: repeat(7, minmax(40px, 1fr)) 60px;
+        grid-template-columns: repeat(5, minmax(40px, 1fr)) 60px;
     }
 
     /* Custom Scrollbar for the grid */

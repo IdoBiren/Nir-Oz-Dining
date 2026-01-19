@@ -232,9 +232,9 @@
 
 
 /* Admin Calendar Specifics - Force 7 columns since we removed the weekly summary */
-/* Admin Calendar Specifics - Force 7 columns since we removed the weekly summary */
+/* Admin Calendar Specifics - Force 5 columns */
 .admin-calendar .calendar-grid {
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(5, 1fr);
 }
 
 @media (max-width: 600px) {
@@ -252,7 +252,7 @@
     /* Force horizontal scrolling for the grid to prevent squishing */
     .admin-calendar .calendar-grid {
         display: grid;
-        grid-template-columns: repeat(7, minmax(50px, 1fr));
+        grid-template-columns: repeat(5, minmax(50px, 1fr));
         overflow-x: auto;
         gap: 5px;
         padding-bottom: 10px;

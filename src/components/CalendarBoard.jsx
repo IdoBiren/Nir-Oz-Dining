@@ -425,7 +425,8 @@ const CalendarBoard = () => {
 
         // 2. Render Batches
         for (let i = 0; i < rawCells.length; i += 7) {
-            const weekBatch = rawCells.slice(i, i + 7);
+            // Slice only the first 5 days (Sunday to Thursday)
+            const weekBatch = rawCells.slice(i, i + 5);
 
             // Render Days
             weekBatch.forEach(cell => {
@@ -517,8 +518,6 @@ const CalendarBoard = () => {
                 <div className="day-name">ג'</div>
                 <div className="day-name">ד'</div>
                 <div className="day-name">ה'</div>
-                <div className="day-name">ו'</div>
-                <div className="day-name">ש'</div>
                 <div className="day-name" style={{ fontSize: '0.8rem' }}>שבועי</div>
                 {generateCalendarDays()}
             </div>
