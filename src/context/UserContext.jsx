@@ -40,10 +40,8 @@ export const UserProvider = ({ children }) => {
         const timeoutId = setTimeout(() => {
             if (mounted && isLoading) {
                 console.warn('Supabase session load timed out. Forcing app load.');
-                // Don't just silence it, let the user know if they are stuck
-                if (!session) {
-                    alert('הטעינה מתעכבת. ייתכן שיש בעיית תקשורת.');
-                }
+                // User requested no alert on initial load, just logout/fallback
+                supabase.auth.signOut().catch(err => console.error('SignOut error during failsafe:', err));
                 setIsLoading(false);
             }
         }, 12000);
@@ -142,7 +140,9 @@ export const UserProvider = ({ children }) => {
                         }
 
                         console.error('Session sync timed out');
-                        alert('ההתחברות לוקחת יותר מדי זמן. אנא נסה שנית או בדוק את החיבור לרשת.');
+                        if (_event === 'SIGNED_IN') {
+                            alert('ההתחברות לוקחת יותר מדי זמן. אנא נסה שנית או בדוק את החיבור לרשת.');
+                        }
                         await supabase.auth.signOut();
                         // Loading will be cleared in finally
                         return;
